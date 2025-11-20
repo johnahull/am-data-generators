@@ -27,6 +27,7 @@ def parse_args():
     p.add_argument("--birth_year_min", type=int, help="Min birth year (inclusive, overrides age_group)")
     p.add_argument("--birth_year_max", type=int, help="Max birth year (inclusive, overrides age_group)")
     p.add_argument("--team_name", default=None, help="Team name; if omitted, auto-generated")
+    p.add_argument("--school", default=None, help="School name; if omitted, randomly chosen")
     p.add_argument("--seed", type=int, default=42, help="Random seed")
     return p.parse_args()
 
@@ -139,7 +140,7 @@ def main():
         ht = height_inches(gender)
         wt = weight_pounds(ht, gender)
 
-        school = random.choice(SCHOOLS)
+        school = args.school if args.school else random.choice(SCHOOLS)
         emails = email(fn, ln)
         phones = phone()
 
