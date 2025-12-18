@@ -107,7 +107,7 @@ def parse_args():
     p.add_argument("--seed", type=int, default=42, help="Random seed")
     return p.parse_args()
 
-def get_birth_years_for_age_group(age_group: str, current_year: int = 2024):
+def get_birth_years_for_age_group(age_group: str, current_year: int = 2025):
     """Return (min_birth_year, max_birth_year) for the given age group."""
     age_ranges = {
         "middle_school": (11, 14),  # ages 11-14
@@ -117,7 +117,9 @@ def get_birth_years_for_age_group(age_group: str, current_year: int = 2024):
     }
     min_age, max_age = age_ranges[age_group]
     # birth_year = current_year - age
-    return (current_year - max_age, current_year - min_age)
+    min_birth_year = max(2007, current_year - max_age)  # Ensure 2007 or later
+    max_birth_year = max(2007, current_year - min_age)
+    return (min_birth_year, max_birth_year)
 
 def rng_date_in_year(year: int) -> date:
     start = date(year, 1, 1)
