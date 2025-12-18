@@ -9,12 +9,87 @@ HEADERS = [
 ]
 
 FIRST_NAMES_M = ["Ethan","Liam","Noah","Mason","Jacob","Aiden","James","Elijah","Benjamin","Lucas",
-                 "Alexander","Daniel","Matthew","Henry","Sebastian","Jack","Owen","Samuel","David","Joseph"]
+                 "Alexander","Daniel","Matthew","Henry","Sebastian","Jack","Owen","Samuel","David","Joseph",
+                 "Carter","Wyatt","John","Jackson","Luke","Anthony","Isaac","Grayson","Julian","Levi",
+                 "Christopher","Joshua","Andrew","Lincoln","Mateo","Ryan","Jaxon","Nathan","Aaron","Isaiah",
+                 "Thomas","Charles","Caleb","Josiah","Christian","Hunter","Eli","Jonathan","Connor","Landon",
+                 "Adrian","Asher","Cameron","Leo","Theodore","Jeremiah","Hudson","Robert","Easton","Nolan",
+                 "Nicholas","Ezra","Colton","Angel","Brayden","Jordan","Dominic","Austin","Ian","Adam",
+                 "Elias","Jaxson","Greyson","Jose","Ezekiel","Carson","Evan","Maverick","Bryson","Jace",
+                 "Cooper","Xavier","Parker","Roman","Jason","Santiago","Chase","Sawyer","Gavin","Leonardo",
+                 "Kayden","Ayden","Jameson","Kevin","Bentley","Zachary","Everett","Axel","Tyler","Micah",
+                 "Vincent","Weston","Miles","Wesley","Nathaniel","Harrison","Brandon","Cole","Declan","Luis",
+                 "Braxton","Damian","Silas","Tristan","Ryder","Bennett","George","Emmett","Justin","Kai",
+                 "Max","Diego","Luca","Ryker","Carlos","Maxwell","Kingston","Ivan","Maddox","Juan",
+                 "Ashton","Jayce","Rowan","Kaiden","Giovanni","Eric","Jesus","Calvin","Abel","King",
+                 "Camden","Amir","Blake","Alex","Brody","Malachi","Emmanuel","Jonah","Beau","Jude",
+                 "Antonio","Alan","Elliott","Elliot","Wayne","Rory","Louis","Gabriel","Victor","Sergio",
+                 "Nash","Noel","Felix","Edward","Dean","Lorenzo","Matteo","Maximus","Preston","Oscar",
+                 "Karter","Jax","Marcus","Brantley","Legend","Remington","Leon","Zion","Carlos","Tucker",
+                 "Finn","Arthur","Milo","Knox","Ricardo","Patrick","Paxton","Brian","Timothy","Abraham",
+                 "Richard","Kaden","Andre","Enzo","Zayden","Rafael","Nico","Francis","Cayden","Shane",
+                 "River","Kyle","Killian","Andy","Sage","Archer","Javier","Alejandro","Miguel","Griffin",
+                 "Hayden","Paul","Jett","Phoenix","Zander","Liam","Brady","Oliver","Braeden","Dallas",
+                 "Barrett","Reid","Colt","Beckham","Avery","Jake","Gage","Theo","Jasper","Corbin",
+                 "Cruz","Atlas","Rhett","Lane","Sean","Kyrie","Mario","Kash","Bryce","Brooks",
+                 "Travis","Graham","Clayton","Simon","Cody","Stephen","Kane","Gunner","Zane","River",
+                 "Dawson","Messiah","Kai","Magnus","Brett","Ellis","Emmitt","Porter","Dane","Jaden"]
 FIRST_NAMES_F = ["Mia","Ava","Sophia","Isabella","Charlotte","Amelia","Evelyn","Abigail","Emily","Elizabeth",
-                 "Sofia","Avery","Ella","Scarlett","Grace","Chloe","Victoria","Riley","Nora","Lily"]
+                 "Sofia","Avery","Ella","Scarlett","Grace","Chloe","Victoria","Riley","Nora","Lily",
+                 "Zoey","Mila","Hazel","Leah","Penelope","Aria","Norah","Layla","Margaret","Ellie",
+                 "Madison","Delilah","Isla","Adalyn","Grayson","Brielle","Eliana","Nova","Morgan","Sydney",
+                 "Maya","Leilani","Ariana","Elena","Cora","Ayla","Eloise","Anna","Caroline","Genesis",
+                 "Aaliyah","Kennedy","Kinsley","Allison","Gabriella","Adeline","Skylar","Mary","Nevaeh","Alice",
+                 "Luna","Everly","Mackenzie","Claire","Madelyn","Natalie","Naomi","Eva","Ruby","Serenity",
+                 "Autumn","Adelyn","Hailey","Gianna","Valentina","Eliza","Ashley","Camila","Josephine","Maria",
+                 "Iris","Eleanor","Sarah","Natalia","Isabelle","Willow","Piper","Aurora","Lucy","Samantha",
+                 "Paisley","Raelynn","Stella","Violet","Savannah","Brooklyn","Lillian","Juniper","Zoe","Emilia",
+                 "Hannah","Julia","Melody","Jasmine","Josephine","Ivy","Faith","Alexandra","Kylie","Audrey",
+                 "Catherine","Clare","Kimberly","Brooklynn","Sophie","Aubrey","Olive","Cecilia","Gabrielle","Lydia",
+                 "Adriana","Josie","Parker","Madeline","Ryleigh","Liliana","Brynlee","Andrea","Keira","Juliana",
+                 "Nicole","Hadley","Arya","Dakota","Harmony","Lyla","Peyton","Phoebe","Athena","Reese",
+                 "Carmen","Paige","Daniela","Ariel","Angela","Payton","Emma","Jocelyn","Kaitlyn","Nevaeh",
+                 "Diana","Rosalie","Hope","Georgia","Mya","Jordyn","Jenna","Rachel","Molly","Kate",
+                 "Kayla","Destiny","Amy","Kalani","Finley","Ximena","Fernanda","Summer","Stephanie","Mckenzie",
+                 "Paola","Daisy","Miranda","Rowan","London","Kyla","Esther","Eden","Anastasia","Kamila",
+                 "Tessa","Francesca","Lilly","Alicia","Sabrina","Alayna","Elise","Gracie","Emery","Michelle",
+                 "Lila","Makayla","Alexa","Gia","Vanessa","Nyla","Ember","Sage","Mckenna","Annie",
+                 "Presley","Amara","Alayah","Amira","Charlee","Lucia","Amina","Alana","Madeleine","Jacqueline",
+                 "Alaina","Miriam","Rebecca","Adelynn","Catalina","Fiona","Sloane","June","Camille","Angelina",
+                 "Lola","Maggie","Gemma","Valeria","Heidi","Adelaide","Vera","Alina","Vivian","Talia",
+                 "Haisley","Jessica","Khloe","Sydney","Ophelia","Daphne","Mallory","Celia","Remi","Raegan",
+                 "Kali","Teagan","Rose","Juliette","Callie","Kiara","Allie","Haven","Oakley","Fatima"]
 LAST_NAMES = ["Martinez","Johnson","Garcia","Hernandez","Lopez","Rodriguez","Perez","Sanchez","Ramirez","Torres",
-              "Flores","Rivera","Gonzalez","Morales","Diaz","Castillo","Gomez","Santos","Reyes","Nguyen","Patel","Kim"]
-SCHOOLS = ["Westlake HS","Lake Travis HS","Anderson HS","Bowie HS","McCallum HS","Austin HS","Reagan HS","Cedar Park HS"]
+              "Flores","Rivera","Gonzalez","Morales","Diaz","Castillo","Gomez","Santos","Reyes","Nguyen","Patel","Kim",
+              "Smith","Brown","Davis","Miller","Wilson","Moore","Taylor","Anderson","Thomas","Jackson",
+              "White","Harris","Martin","Thompson","Young","Allen","King","Wright","Scott","Torres",
+              "Adams","Baker","Gonzalez","Nelson","Carter","Mitchell","Perez","Roberts","Turner","Phillips",
+              "Campbell","Parker","Evans","Edwards","Collins","Stewart","Sanchez","Morris","Rogers","Reed",
+              "Cook","Morgan","Bell","Murphy","Bailey","Rivera","Cooper","Richardson","Cox","Howard",
+              "Ward","Torres","Peterson","Gray","Ramirez","James","Watson","Brooks","Kelly","Sanders",
+              "Price","Bennett","Wood","Barnes","Ross","Henderson","Coleman","Jenkins","Perry","Powell",
+              "Long","Patterson","Hughes","Flores","Washington","Butler","Simmons","Foster","Gonzales","Bryant",
+              "Alexander","Russell","Griffin","Diaz","Hayes","Myers","Ford","Hamilton","Graham","Sullivan",
+              "Wallace","Woods","Cole","West","Jordan","Owens","Reynolds","Fisher","Ellis","Harrison",
+              "Gibson","Mcdonald","Cruz","Marshall","Ortiz","Gomez","Murray","Freeman","Wells","Webb",
+              "Simpson","Stevens","Tucker","Porter","Hunter","Hicks","Crawford","Henry","Boyd","Mason",
+              "Morales","Kennedy","Warren","Dixon","Ramos","Reyes","Burns","Gordon","Shaw","Holmes",
+              "Rice","Robertson","Hunt","Black","Daniels","Palmer","Mills","Nichols","Grant","Knight",
+              "Ferguson","Rose","Stone","Hawkins","Dunn","Perkins","Hudson","Spencer","Gardner","Stephens",
+              "Payne","Pierce","Berry","Matthews","Arnold","Wagner","Willis","Ray","Watkins","Olson",
+              "Carroll","Duncan","Snyder","Hart","Cunningham","Bradley","Lane","Andrews","Ruiz","Harper",
+              "Fox","Riley","Armstrong","Carpenter","Weaver","Greene","Lawrence","Elliott","Chavez","Sims",
+              "Austin","Peters","Kelley","Franklin","Lawson","Fields","Gutierrez","Ryan","Schmidt","Carr",
+              "Vasquez","Castillo","Wheeler","Chapman","Oliver","Montgomery","Richards","Williamson","Johnston","Banks",
+              "Meyer","Bishop","Mccoy","Howell","Alvarez","Morrison","Hansen","Fernandez","Garza","Harvey",
+              "Little","Burton","Stanley","Nguyen","George","Jacobs","Reid","Kim","Fuller","Lynch",
+              "Dean","Gilbert","Garrett","Romero","Welch","Larson","Frazier","Burke","Hanson","Day",
+              "Mendoza","Moreno","Bowman","Medina","Fowler","Brewer","Hoffman","Carlson","Silva","Pearson",
+              "Holland","Douglas","Fleming","Jensen","Vargas","Byrd","Davidson","Hopkins","May","Terry",
+              "Herrera","Wade","Soto","Walters","Curtis","Neal","Caldwell","Lowe","Jennings","Barnett",
+              "Graves","Jimenez","Horton","Shelton","Barrett","Obrien","Castro","Sutton","Gregory","Mckinney",
+              "Lucas","Miles","Craig","Rodriquez","Chambers","Holt","Lambert","Fletcher","Watts","Bates"]
+SCHOOLS = ["Lincoln High School","Jefferson High School","Roosevelt High School","Washington High School","Franklin High School","Madison High School","Kennedy High School","Central High School","Riverside High School","Northview High School"]
 EMAIL_DOMAINS = ["email.com","school.edu","mail.com","inbox.com"]
 
 def parse_args():
@@ -28,6 +103,7 @@ def parse_args():
     p.add_argument("--birth_year_max", type=int, help="Max birth year (inclusive, overrides age_group)")
     p.add_argument("--team_name", default=None, help="Team name; if omitted, auto-generated")
     p.add_argument("--school", default=None, help="School name; if omitted, randomly chosen")
+    p.add_argument("--exclude_last_names", nargs="*", help="Last names to exclude from generation")
     p.add_argument("--seed", type=int, default=42, help="Random seed")
     return p.parse_args()
 
@@ -71,7 +147,7 @@ def weight_pounds(ht_in: int, gender: str) -> int:
     return int(round(wt))
 
 def phone():
-    return f"512-555-{random.randint(1000,9999)}"
+    return f"555-555-{random.randint(1000,9999)}"
 
 def email(first: str, last: str):
     tag = random.randint(10,99)
@@ -123,11 +199,19 @@ def main():
 
     rows = []
     used_names = set()
+    
+    # Filter out excluded last names
+    available_last_names = LAST_NAMES
+    if args.exclude_last_names:
+        available_last_names = [name for name in LAST_NAMES if name not in args.exclude_last_names]
+        if not available_last_names:
+            raise ValueError("All last names have been excluded. Cannot generate roster.")
+    
     for i in range(args.num):
         # Ensure some name variety
         for _ in range(100):
             fn = pick_first_name(gender)
-            ln = random.choice(LAST_NAMES)
+            ln = random.choice(available_last_names)
             key = (fn, ln)
             if key not in used_names:
                 used_names.add(key)
