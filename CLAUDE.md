@@ -20,14 +20,16 @@ Both scripts are self-contained Python files with no external dependencies beyon
 ### Roster Generation (`generate_roster.py`)
 - Generates realistic athlete profiles with configurable demographics
 - Supports age groups: middle_school, high_school, college, pro
+- Birth years constrained to 2007 and later
 - Outputs CSV with fields: firstName, lastName, birthDate, birthYear, graduationYear, gender, emails, phoneNumbers, sports, height, weight, school, teamName
-- Uses hardcoded realistic name lists and school names for Austin area
+- Uses hardcoded realistic name lists and generic school names
 
 ### Measurement Generation (`generate_measurements.py`)
-- Creates performance test data based on roster input
-- Implements 5 standard athletic metrics: FLY10_TIME, VERTICAL_JUMP, AGILITY_505, RSI, T_TEST
+- Creates sport-specific performance test data based on roster input
+- Supports Soccer and Volleyball with distinct metric sets
 - Features realistic age/gender adjustments and performance drift over time
-- Supports multiple trial runs per athlete per test date
+- Supports multiple trial runs per athlete per test date (static metrics like HEIGHT/WEIGHT get 1 trial)
+- Performance levels: elite, varsity, jv, recreational
 
 ## Data Flow
 
@@ -37,22 +39,35 @@ The typical workflow is sequential:
 
 ## Key Configuration
 
-### Metric Specifications (`generate_measurements.py:8-14`)
-Each metric has baseline stats (center, standard deviation), acceptable ranges, and drift coefficients for realistic progression over time.
+### Sport-Specific Metrics (`generate_measurements.py:8-31`)
 
-### Age and Gender Adjustments (`generate_measurements.py:16-38`)
+**Soccer** (7 metrics):
+- FLY10_TIME, VERTICAL_JUMP, AGILITY_505, RSI, T_TEST, HEIGHT, WEIGHT
+
+**Volleyball** (11 metrics):
+- VERTICAL_JUMP, APPROACH_JUMP, BLOCK_JUMP, T_TEST, AGILITY_505, RSI
+- WINGSPAN, STANDING_REACH, HEIGHT, WEIGHT, DASH_10YD
+
+Each metric has baseline stats (center, standard deviation), acceptable ranges, and drift coefficients. Static metrics (HEIGHT, WEIGHT, WINGSPAN, STANDING_REACH) have `"static": True` and generate only 1 trial.
+
+### Age and Gender Adjustments (`generate_measurements.py:35-65`)
 Performance multipliers based on demographic factors to ensure realistic data distribution.
 
 ## Common Commands
 
 ### Generate roster data:
 ```bash
-./generate_roster.py --out roster.csv --num 25 --gender Male --age_group high_school --team_name "Varsity Soccer"
+./generate_roster.py --out roster.csv --num 25 --gender Male --age_group high_school --sport Soccer --team_name "Varsity Soccer"
 ```
 
 ### Generate measurement data:
 ```bash
 ./generate_measurements.py --roster roster.csv --out measurements.csv --trials 3 --dates 2025-03-15 2025-06-20
+```
+
+### Generate with performance level:
+```bash
+./generate_measurements.py --roster roster.csv --out measurements.csv --trials 3 --performance_level jv --dates 2025-03-15
 ```
 
 ## Testing and Validation
