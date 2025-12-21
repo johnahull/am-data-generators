@@ -12,8 +12,8 @@ SPORT_METRICS = {
         "AGILITY_505": {"units": "s", "better": "lower", "center": 2.55, "sd": 0.07, "drift_per_day": -0.0007, "min": 2.1, "max": 3.5, "flyInDistance": ""},
         "RSI": {"units": "", "better": "higher", "center": 2.4, "sd": 0.25, "drift_per_day": +0.0009, "min": 1.0, "max": 4.5, "flyInDistance": ""},
         "T_TEST": {"units": "s", "better": "lower", "center": 9.8, "sd": 0.4, "drift_per_day": -0.0010, "min": 7.5, "max": 13.5, "flyInDistance": ""},
-        "HEIGHT": {"units": "in", "better": "higher", "center": 70, "sd": 3.0, "drift_per_day": 0.0, "min": 60, "max": 80, "flyInDistance": "", "static": True},
-        "WEIGHT": {"units": "lbs", "better": "neutral", "center": 160, "sd": 15.0, "drift_per_day": 0.0, "min": 100, "max": 220, "flyInDistance": "", "static": True},
+        "HEIGHT": {"units": "in", "better": "higher", "center": 69, "sd": 2.5, "drift_per_day": 0.0, "min": 58, "max": 78, "flyInDistance": "", "static": True},
+        "WEIGHT": {"units": "lbs", "better": "neutral", "center": 155, "sd": 12.0, "drift_per_day": 0.0, "min": 95, "max": 200, "flyInDistance": "", "static": True},
     },
     "Volleyball": {
         "VERTICAL_JUMP": {"units": "in", "better": "higher", "center": 24.0, "sd": 2.5, "drift_per_day": +0.008, "min": 12.0, "max": 36.0, "flyInDistance": ""},
@@ -22,10 +22,10 @@ SPORT_METRICS = {
         "T_TEST": {"units": "s", "better": "lower", "center": 9.8, "sd": 0.4, "drift_per_day": -0.0010, "min": 7.5, "max": 13.5, "flyInDistance": ""},
         "AGILITY_505": {"units": "s", "better": "lower", "center": 2.55, "sd": 0.07, "drift_per_day": -0.0007, "min": 2.1, "max": 3.5, "flyInDistance": ""},
         "RSI": {"units": "", "better": "higher", "center": 2.4, "sd": 0.25, "drift_per_day": +0.0009, "min": 1.0, "max": 4.5, "flyInDistance": ""},
-        "WINGSPAN": {"units": "in", "better": "higher", "center": 72, "sd": 3.5, "drift_per_day": 0.0, "min": 58, "max": 86, "flyInDistance": "", "static": True},
-        "STANDING_REACH": {"units": "in", "better": "higher", "center": 93, "sd": 4.0, "drift_per_day": 0.0, "min": 75, "max": 110, "flyInDistance": "", "static": True},
-        "HEIGHT": {"units": "in", "better": "higher", "center": 72, "sd": 3.5, "drift_per_day": 0.0, "min": 60, "max": 84, "flyInDistance": "", "static": True},
-        "WEIGHT": {"units": "lbs", "better": "neutral", "center": 165, "sd": 18.0, "drift_per_day": 0.0, "min": 100, "max": 240, "flyInDistance": "", "static": True},
+        "WINGSPAN": {"units": "in", "better": "higher", "center": 76, "sd": 3.5, "drift_per_day": 0.0, "min": 60, "max": 90, "flyInDistance": "", "static": True},
+        "STANDING_REACH": {"units": "in", "better": "higher", "center": 96, "sd": 4.0, "drift_per_day": 0.0, "min": 78, "max": 115, "flyInDistance": "", "static": True},
+        "HEIGHT": {"units": "in", "better": "higher", "center": 74, "sd": 3.0, "drift_per_day": 0.0, "min": 60, "max": 84, "flyInDistance": "", "static": True},
+        "WEIGHT": {"units": "lbs", "better": "neutral", "center": 170, "sd": 15.0, "drift_per_day": 0.0, "min": 105, "max": 240, "flyInDistance": "", "static": True},
         "DASH_10YD": {"units": "s", "better": "lower", "center": 1.7, "sd": 0.08, "drift_per_day": -0.0005, "min": 1.4, "max": 2.2, "flyInDistance": ""},
     },
 }
@@ -64,6 +64,44 @@ GENDER_ADJUSTMENTS = {
     "DASH_10YD": {"Male": 1.00, "Female": 1.08},       # Females ~8% slower
 }
 
+# Anthropometric growth curves by age and gender (percentage of adult measurements)
+# Based on CDC 50th percentile growth data
+ANTHROPOMETRIC_GROWTH = {
+    "HEIGHT": {
+        "Male":   {11: 0.82, 12: 0.85, 13: 0.89, 14: 0.93, 15: 0.97, 16: 0.99, 17: 1.00, 18: 1.00},
+        "Female": {11: 0.88, 12: 0.92, 13: 0.96, 14: 0.97, 15: 0.98, 16: 1.00, 17: 1.00, 18: 1.00},
+    },
+    "WEIGHT": {
+        "Male":   {11: 0.53, 12: 0.60, 13: 0.68, 14: 0.76, 15: 0.84, 16: 0.91, 17: 0.96, 18: 1.00},
+        "Female": {11: 0.65, 12: 0.73, 13: 0.81, 14: 0.84, 15: 0.92, 16: 0.94, 17: 0.96, 18: 1.00},
+    },
+}
+
+# Position-based adjustments for anthropometric metrics
+# HEIGHT adjustment is additive (inches), WEIGHT adjustment is multiplicative
+POSITION_ADJUSTMENTS = {
+    "Soccer": {
+        "Goalkeeper": {"HEIGHT": +4, "WEIGHT": 1.08},
+        "Center Back": {"HEIGHT": +2, "WEIGHT": 1.05},
+        "Left Back": {"HEIGHT": +1, "WEIGHT": 1.02},
+        "Right Back": {"HEIGHT": +1, "WEIGHT": 1.02},
+        "Defensive Midfielder": {"HEIGHT": +1, "WEIGHT": 1.03},
+        "Central Midfielder": {"HEIGHT": 0, "WEIGHT": 1.00},
+        "Attacking Midfielder": {"HEIGHT": 0, "WEIGHT": 0.98},
+        "Left Winger": {"HEIGHT": -1, "WEIGHT": 0.95},
+        "Right Winger": {"HEIGHT": -1, "WEIGHT": 0.95},
+        "Striker": {"HEIGHT": +1, "WEIGHT": 1.00},
+    },
+    "Volleyball": {
+        "Setter": {"HEIGHT": -2, "WEIGHT": 0.95},
+        "Outside Hitter": {"HEIGHT": +1, "WEIGHT": 1.00},
+        "Middle Blocker": {"HEIGHT": +4, "WEIGHT": 1.05},
+        "Opposite Hitter": {"HEIGHT": +2, "WEIGHT": 1.03},
+        "Libero": {"HEIGHT": -4, "WEIGHT": 0.90},
+        "Defensive Specialist": {"HEIGHT": -2, "WEIGHT": 0.95},
+    },
+}
+
 # Performance level multipliers (applied to baseline after age/gender adjustments)
 PERFORMANCE_LEVELS = {
     "elite": 1.15,        # Top-tier athletes, 15% above baseline
@@ -86,6 +124,54 @@ def get_sport_metrics(sport):
     if sport not in SPORT_METRICS:
         raise ValueError(f"Unsupported sport: '{sport}'. Supported sports: {SUPPORTED_SPORTS}")
     return SPORT_METRICS[sport]
+
+def get_anthropometric_growth_factor(age, gender, metric):
+    """Get age-based growth factor for anthropometric metrics (HEIGHT, WEIGHT, WINGSPAN, STANDING_REACH)."""
+    if age is None or age == "":
+        return 1.0
+
+    try:
+        age = int(float(age))
+    except (ValueError, TypeError):
+        return 1.0
+
+    # Cap age range
+    if age < 11:
+        age = 11
+    elif age > 18:
+        age = 18
+
+    # Default to Male if gender unknown
+    if gender not in ["Male", "Female"]:
+        gender = "Male"
+
+    # Use HEIGHT growth curve for WINGSPAN and STANDING_REACH
+    if metric in ["WINGSPAN", "STANDING_REACH"]:
+        metric = "HEIGHT"
+
+    # Get growth table for this metric
+    if metric not in ANTHROPOMETRIC_GROWTH:
+        return 1.0
+
+    growth_table = ANTHROPOMETRIC_GROWTH[metric].get(gender, {})
+    return growth_table.get(age, 1.0)
+
+def get_position_adjustment(sport, position, metric):
+    """Get position-based adjustment for anthropometric metrics.
+
+    Returns dict with 'additive' (for HEIGHT-like metrics) and 'multiplicative' (for WEIGHT).
+    """
+    if not sport or not position:
+        return {"additive": 0, "multiplicative": 1.0}
+
+    pos_adjustments = POSITION_ADJUSTMENTS.get(sport, {}).get(position, {})
+
+    if metric in ["HEIGHT", "WINGSPAN", "STANDING_REACH"]:
+        return {"additive": pos_adjustments.get("HEIGHT", 0), "multiplicative": 1.0}
+    elif metric == "WEIGHT":
+        return {"additive": 0, "multiplicative": pos_adjustments.get("WEIGHT", 1.0)}
+
+    return {"additive": 0, "multiplicative": 1.0}
 
 def parse_args():
     p = argparse.ArgumentParser(description="Generate sport-specific testing measurements from a roster.")
@@ -200,13 +286,30 @@ def athlete_baseline_offsets(roster_rows):
         offsets[key] = per_metric
     return offsets
 
-def gen_value(spec, base_offset, day_index, jitter_sd, age=None, gender=None, metric=None, performance_multiplier=1.0):
-    # Apply age and gender adjustments to center baseline
+def gen_value(spec, base_offset, day_index, jitter_sd, age=None, gender=None, metric=None,
+              performance_multiplier=1.0, sport=None, position=None):
     center = spec["center"]
-    # Explicitly check for None and empty string to handle all edge cases
+    is_static = spec.get("static", False)
+
     if age is not None and age != "" and gender and metric:
-        adjustment = get_adjustment_factor(age, gender, metric, spec, performance_multiplier)
-        center = center * adjustment
+        if is_static:
+            # Use anthropometric growth curves for static metrics (HEIGHT, WEIGHT, etc.)
+            # Apply gender adjustment first
+            gender_mult = GENDER_ADJUSTMENTS.get(metric, {}).get(gender, 1.0)
+            center = center * gender_mult
+
+            # Apply age-based growth factor
+            growth_factor = get_anthropometric_growth_factor(age, gender, metric)
+            center = center * growth_factor
+
+            # Apply position adjustments
+            pos_adj = get_position_adjustment(sport, position, metric)
+            center = center + pos_adj["additive"]
+            center = center * pos_adj["multiplicative"]
+        else:
+            # Use performance-based adjustments for non-static metrics
+            adjustment = get_adjustment_factor(age, gender, metric, spec, performance_multiplier)
+            center = center * adjustment
 
     # Trend over time: drift_per_day * day_index, plus trial noise
     trend = spec["drift_per_day"] * day_index
@@ -247,6 +350,7 @@ def main():
             team = a.get("teamName","")
             birthDate = a.get("birthDate","")
             sport = a.get("sports", "").strip()
+            position = a.get("position", "").strip()
 
             if not sport:
                 print(f"Warning: No sport specified for {key[0]} {key[1]}. Skipping.", file=sys.stderr)
@@ -263,7 +367,8 @@ def main():
                     for trial in range(num_trials):
                         # Slightly higher within-session jitter than between-date drift
                         jitter_sd = spec["sd"] * 0.5
-                        val = gen_value(spec, per_metric_offset[metric], di, jitter_sd, age, gender, metric, performance_multiplier)
+                        val = gen_value(spec, per_metric_offset[metric], di, jitter_sd, age, gender, metric,
+                                       performance_multiplier, sport, position)
 
                         row = {
                             "firstName": key[0],
