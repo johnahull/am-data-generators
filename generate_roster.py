@@ -5,8 +5,32 @@ from pathlib import Path
 
 HEADERS = [
     "firstName","lastName","birthDate","birthYear","graduationYear","gender",
-    "emails","phoneNumbers","sports","height","weight","school","teamName"
+    "emails","phoneNumbers","sports","position","height","weight","school","teamName"
 ]
+
+# Sport-specific positions with weights reflecting typical team distribution
+POSITIONS = {
+    "Soccer": [
+        ("Goalkeeper", 2),
+        ("Center Back", 4),
+        ("Left Back", 2),
+        ("Right Back", 2),
+        ("Defensive Midfielder", 3),
+        ("Central Midfielder", 4),
+        ("Attacking Midfielder", 3),
+        ("Left Winger", 2),
+        ("Right Winger", 2),
+        ("Striker", 3),
+    ],
+    "Volleyball": [
+        ("Setter", 2),
+        ("Outside Hitter", 4),
+        ("Middle Blocker", 3),
+        ("Opposite Hitter", 2),
+        ("Libero", 2),
+        ("Defensive Specialist", 2),
+    ],
+}
 
 FIRST_NAMES_M = ["Ethan","Liam","Noah","Mason","Jacob","Aiden","James","Elijah","Benjamin","Lucas",
                  "Alexander","Daniel","Matthew","Henry","Sebastian","Jack","Owen","Samuel","David","Joseph",
@@ -164,6 +188,13 @@ def pick_first_name(gender: str):
     # mixed
     return random.choice(FIRST_NAMES_M + FIRST_NAMES_F)
 
+def pick_position(sport: str) -> str:
+    """Pick a position for the given sport using weighted random selection."""
+    if sport not in POSITIONS:
+        return ""
+    positions, weights = zip(*POSITIONS[sport])
+    return random.choices(positions, weights=weights, k=1)[0]
+
 def main():
     args = parse_args()
     random.seed(args.seed)
@@ -240,6 +271,7 @@ def main():
             "emails": emails,
             "phoneNumbers": phones,
             "sports": sport,
+            "position": pick_position(sport),
             "height": ht,
             "weight": wt,
             "school": school,

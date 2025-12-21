@@ -21,8 +21,9 @@ Both scripts are self-contained Python files with no external dependencies beyon
 - Generates realistic athlete profiles with configurable demographics
 - Supports age groups: middle_school, high_school, college, pro
 - Birth years constrained to 2007 and later
-- Outputs CSV with fields: firstName, lastName, birthDate, birthYear, graduationYear, gender, emails, phoneNumbers, sports, height, weight, school, teamName
+- Outputs CSV with fields: firstName, lastName, birthDate, birthYear, graduationYear, gender, emails, phoneNumbers, sports, position, height, weight, school, teamName
 - Uses hardcoded realistic name lists and generic school names
+- Sport-specific positions with weighted random distribution
 
 ### Measurement Generation (`generate_measurements.py`)
 - Creates sport-specific performance test data based on roster input
@@ -49,6 +50,18 @@ The typical workflow is sequential:
 - WINGSPAN, STANDING_REACH, HEIGHT, WEIGHT, DASH_10YD
 
 Each metric has baseline stats (center, standard deviation), acceptable ranges, and drift coefficients. Static metrics (HEIGHT, WEIGHT, WINGSPAN, STANDING_REACH) have `"static": True` and generate only 1 trial.
+
+### Sport-Specific Positions (`generate_roster.py:12-32`)
+
+**Soccer** (10 positions):
+- Goalkeeper, Center Back, Left Back, Right Back
+- Defensive Midfielder, Central Midfielder, Attacking Midfielder
+- Left Winger, Right Winger, Striker
+
+**Volleyball** (6 positions):
+- Setter, Outside Hitter, Middle Blocker, Opposite Hitter, Libero, Defensive Specialist
+
+Positions are assigned using weighted random selection to reflect typical team composition.
 
 ### Age and Gender Adjustments (`generate_measurements.py:35-65`)
 Performance multipliers based on demographic factors to ensure realistic data distribution.
