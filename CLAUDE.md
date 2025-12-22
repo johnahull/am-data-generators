@@ -66,6 +66,32 @@ Positions are assigned using weighted random selection to reflect typical team c
 ### Age and Gender Adjustments (`generate_measurements.py:35-65`)
 Performance multipliers based on demographic factors to ensure realistic data distribution.
 
+### Anthropometric Growth Curves (`generate_measurements.py:67-78`)
+Realistic CDC-based growth curves for HEIGHT and WEIGHT by age and gender:
+- Replaces generic performance multipliers for static metrics
+- Age 13 female: 96% adult height, 81% adult weight
+- Age 13 male: 89% adult height, 68% adult weight
+- WINGSPAN and STANDING_REACH use HEIGHT growth curves
+
+### Position-Based Adjustments (`generate_measurements.py:80-103`)
+Height and weight adjustments based on athlete position:
+
+**Soccer:**
+- Goalkeeper: +4" height, 1.08x weight (tallest, biggest frame)
+- Center Back: +2" height, 1.05x weight
+- Wingers: -1" height, 0.95x weight (smaller, faster)
+
+**Volleyball:**
+- Middle Blocker: +4" height, 1.05x weight (tallest)
+- Opposite Hitter: +2" height, 1.03x weight
+- Libero: -4" height, 0.90x weight (shortest)
+- Setter: -2" height, 0.95x weight
+
+### Sport Baseline Differentiation
+Adult male baselines differ significantly by sport:
+- Soccer: 69" height, 155 lbs
+- Volleyball: 74" height, 170 lbs (5" taller)
+
 ## Common Commands
 
 ### Generate roster data:
