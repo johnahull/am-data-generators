@@ -12,15 +12,9 @@ HEADERS = [
 POSITIONS = {
     "Soccer": [
         ("Goalkeeper", 2),
-        ("Center Back", 4),
-        ("Left Back", 2),
-        ("Right Back", 2),
-        ("Defensive Midfielder", 3),
-        ("Central Midfielder", 4),
-        ("Attacking Midfielder", 3),
-        ("Left Winger", 2),
-        ("Right Winger", 2),
-        ("Striker", 3),
+        ("Defender", 4),
+        ("Midfielder", 4),
+        ("Forward", 3),
     ],
     "Volleyball": [
         ("Setter", 2),

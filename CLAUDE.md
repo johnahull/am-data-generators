@@ -51,12 +51,10 @@ The typical workflow is sequential:
 
 Each metric has baseline stats (center, standard deviation), acceptable ranges, and drift coefficients. Static metrics (HEIGHT, WEIGHT, WINGSPAN, STANDING_REACH) have `"static": True` and generate only 1 trial.
 
-### Sport-Specific Positions (`generate_roster.py:12-32`)
+### Sport-Specific Positions (`generate_roster.py:12-26`)
 
-**Soccer** (10 positions):
-- Goalkeeper, Center Back, Left Back, Right Back
-- Defensive Midfielder, Central Midfielder, Attacking Midfielder
-- Left Winger, Right Winger, Striker
+**Soccer** (4 positions):
+- Goalkeeper, Defender, Midfielder, Forward
 
 **Volleyball** (6 positions):
 - Setter, Outside Hitter, Middle Blocker, Opposite Hitter, Libero, Defensive Specialist
@@ -73,13 +71,14 @@ Realistic CDC-based growth curves for HEIGHT and WEIGHT by age and gender:
 - Age 13 male: 89% adult height, 68% adult weight
 - WINGSPAN and STANDING_REACH use HEIGHT growth curves
 
-### Position-Based Adjustments (`generate_measurements.py:80-103`)
+### Position-Based Adjustments (`generate_measurements.py:80-97`)
 Height and weight adjustments based on athlete position:
 
 **Soccer:**
 - Goalkeeper: +4" height, 1.08x weight (tallest, biggest frame)
-- Center Back: +2" height, 1.05x weight
-- Wingers: -1" height, 0.95x weight (smaller, faster)
+- Defender: +1" height, 1.03x weight
+- Midfielder: no adjustment (baseline)
+- Forward: 0.98x weight (slightly lighter)
 
 **Volleyball:**
 - Middle Blocker: +4" height, 1.05x weight (tallest)

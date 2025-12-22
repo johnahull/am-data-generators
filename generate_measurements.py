@@ -82,15 +82,9 @@ ANTHROPOMETRIC_GROWTH = {
 POSITION_ADJUSTMENTS = {
     "Soccer": {
         "Goalkeeper": {"HEIGHT": +4, "WEIGHT": 1.08},
-        "Center Back": {"HEIGHT": +2, "WEIGHT": 1.05},
-        "Left Back": {"HEIGHT": +1, "WEIGHT": 1.02},
-        "Right Back": {"HEIGHT": +1, "WEIGHT": 1.02},
-        "Defensive Midfielder": {"HEIGHT": +1, "WEIGHT": 1.03},
-        "Central Midfielder": {"HEIGHT": 0, "WEIGHT": 1.00},
-        "Attacking Midfielder": {"HEIGHT": 0, "WEIGHT": 0.98},
-        "Left Winger": {"HEIGHT": -1, "WEIGHT": 0.95},
-        "Right Winger": {"HEIGHT": -1, "WEIGHT": 0.95},
-        "Striker": {"HEIGHT": +1, "WEIGHT": 1.00},
+        "Defender": {"HEIGHT": +1, "WEIGHT": 1.03},
+        "Midfielder": {"HEIGHT": 0, "WEIGHT": 1.00},
+        "Forward": {"HEIGHT": 0, "WEIGHT": 0.98},
     },
     "Volleyball": {
         "Setter": {"HEIGHT": -2, "WEIGHT": 0.95},
