@@ -149,7 +149,26 @@ def grad_year_from_birth(birth_year: int) -> int:
     # Typical US graduation ~ spring of year they turn 18
     return birth_year + 18
 
-def height_inches(gender: str) -> int:
+# Sport-specific height ranges (inches) by gender
+HEIGHT_RANGES = {
+    "Volleyball": {
+        "Female": (66, 75),  # 5'6" to 6'3" for elite female volleyball
+        "Male": (72, 82),    # 6'0" to 6'10" for elite male volleyball
+    },
+    "Soccer": {
+        "Female": (62, 70),  # 5'2" to 5'10" for female soccer
+        "Male": (66, 76),    # 5'6" to 6'4" for male soccer
+    },
+}
+
+def height_inches(gender: str, sport: str = None) -> int:
+    """Generate height based on sport and gender."""
+    if sport and sport in HEIGHT_RANGES:
+        ranges = HEIGHT_RANGES[sport]
+        if gender in ranges:
+            lo, hi = ranges[gender]
+            return random.randint(lo, hi)
+    # Default fallback
     if gender == "Female":
         lo, hi = 60, 70
     elif gender == "Male":
@@ -159,12 +178,19 @@ def height_inches(gender: str) -> int:
     return random.randint(lo, hi)
 
 def weight_pounds(ht_in: int, gender: str) -> int:
-    # Rough BMI-based draw: BMI ~ N(21, 2)
+    """Generate weight using BMI formula."""
+    # BMI ~ N(21, 2) for females, N(22, 2) for males
     bmi = random.gauss(21 if gender != "Male" else 22, 2)
-    wt = bmi * (ht_in * 0.0254) ** 2 * 1000 / 0.453592  # tweak scale to land in plausible teen ranges
-    # Simpler clamp
-    wt = max(110, min(190, wt))
-    return int(round(wt))
+    # Correct BMI formula: weight(kg) = BMI * height(m)^2
+    ht_meters = ht_in * 0.0254
+    wt_kg = bmi * (ht_meters ** 2)
+    wt_lbs = wt_kg * 2.205
+    # Clamp to reasonable athletic ranges
+    if gender == "Female":
+        wt_lbs = max(110, min(200, wt_lbs))
+    else:
+        wt_lbs = max(130, min(250, wt_lbs))
+    return int(round(wt_lbs))
 
 def phone():
     return f"555-555-{random.randint(1000,9999)}"
@@ -248,7 +274,7 @@ def main():
         bd = rng_date_in_year(by)
         gy = grad_year_from_birth(by)
 
-        ht = height_inches(gender)
+        ht = height_inches(gender, sport)
         wt = weight_pounds(ht, gender)
 
         school = args.school if args.school else random.choice(SCHOOLS)
