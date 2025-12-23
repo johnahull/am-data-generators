@@ -280,30 +280,72 @@ def athlete_baseline_offsets(roster_rows):
         offsets[key] = per_metric
     return offsets
 
+# Anthropometric ratio constants for correlating HEIGHT, WINGSPAN, and STANDING_REACH
+# Ape index (wingspan/height) typically ~1.0 for average, athletes often slightly higher
+WINGSPAN_HEIGHT_RATIO = {"mean": 1.02, "sd": 0.02}  # Wingspan is typically ~102% of height
+# Standing reach is typically ~130% of height (arm raised overhead)
+STANDING_REACH_HEIGHT_RATIO = {"mean": 1.30, "sd": 0.02}
+
 def compute_static_values(roster_rows, performance_multiplier=1.0):
-    """Compute static metric values (HEIGHT, WEIGHT, etc.) once per athlete for consistency across dates."""
+    """Compute static metric values (HEIGHT, WEIGHT, etc.) once per athlete for consistency across dates.
+
+    HEIGHT, WINGSPAN, and STANDING_REACH are correlated: WINGSPAN and STANDING_REACH
+    are derived from HEIGHT using anthropometric ratios with small individual variation.
+    """
     static_values = {}
     for a in roster_rows:
         key = (a.get("firstName","").strip(), a.get("lastName","").strip(), a.get("teamName","").strip())
         sport = a.get("sports", "").strip()
         gender = a.get("gender", "")
         position = a.get("position", "").strip()
-        birth_date = a.get("birthDate", "")
-
-        # Use a reference age (we'll use age 18 as the baseline for static metrics)
-        # This gives consistent adult-ish values
-        try:
-            bd = datetime.strptime(birth_date, "%Y-%m-%d").date()
-            # Calculate approximate current age
-            ref_age = 18  # Use adult baseline for consistency
-        except:
-            ref_age = 18
 
         metrics = get_sport_metrics(sport)
         athlete_static = {}
 
+        # First, compute HEIGHT_IN as the base anthropometric measurement
+        if "HEIGHT_IN" in metrics:
+            spec = metrics["HEIGHT_IN"]
+            center = spec["center"]
+
+            # Apply gender adjustment
+            gender_mult = GENDER_ADJUSTMENTS.get("HEIGHT_IN", {}).get(gender, 1.0)
+            center = center * gender_mult
+
+            # Apply position adjustments
+            pos_adj = get_position_adjustment(sport, position, "HEIGHT_IN")
+            center = center + pos_adj["additive"]
+
+            # Add small per-athlete variation
+            athlete_variation = random.gauss(0.0, spec["sd"] * 0.3)
+            height_value = clamp(center + athlete_variation, spec["min"], spec["max"])
+            athlete_static["HEIGHT_IN"] = height_value
+        else:
+            height_value = None
+
+        # Compute WINGSPAN derived from HEIGHT with individual ratio variation
+        if "WINGSPAN" in metrics and height_value is not None:
+            spec = metrics["WINGSPAN"]
+            # Each athlete gets their own ape index (wingspan/height ratio)
+            athlete_ratio = random.gauss(WINGSPAN_HEIGHT_RATIO["mean"], WINGSPAN_HEIGHT_RATIO["sd"])
+            wingspan_value = height_value * athlete_ratio
+            wingspan_value = clamp(wingspan_value, spec["min"], spec["max"])
+            athlete_static["WINGSPAN"] = wingspan_value
+
+        # Compute STANDING_REACH derived from HEIGHT with individual ratio variation
+        if "STANDING_REACH" in metrics and height_value is not None:
+            spec = metrics["STANDING_REACH"]
+            # Each athlete gets their own standing reach ratio
+            athlete_ratio = random.gauss(STANDING_REACH_HEIGHT_RATIO["mean"], STANDING_REACH_HEIGHT_RATIO["sd"])
+            reach_value = height_value * athlete_ratio
+            reach_value = clamp(reach_value, spec["min"], spec["max"])
+            athlete_static["STANDING_REACH"] = reach_value
+
+        # Compute other static metrics (WEIGHT_LBS, etc.) independently
         for metric, spec in metrics.items():
             if not spec.get("static", False):
+                continue
+            # Skip metrics we already computed
+            if metric in ["HEIGHT_IN", "WINGSPAN", "STANDING_REACH"]:
                 continue
 
             center = spec["center"]
@@ -317,12 +359,9 @@ def compute_static_values(roster_rows, performance_multiplier=1.0):
             center = center + pos_adj["additive"]
             center = center * pos_adj["multiplicative"]
 
-            # Add small per-athlete variation (once, not per measurement)
+            # Add small per-athlete variation
             athlete_variation = random.gauss(0.0, spec["sd"] * 0.3)
-            value = center + athlete_variation
-
-            # Clamp to valid range
-            value = clamp(value, spec["min"], spec["max"])
+            value = clamp(center + athlete_variation, spec["min"], spec["max"])
             athlete_static[metric] = value
 
         static_values[key] = athlete_static
