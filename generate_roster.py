@@ -122,6 +122,7 @@ def parse_args():
     p.add_argument("--team_name", default=None, help="Team name; if omitted, auto-generated")
     p.add_argument("--school", default=None, help="School name; if omitted, randomly chosen")
     p.add_argument("--exclude_last_names", nargs="*", help="Last names to exclude from generation")
+    p.add_argument("--height_adjust", type=int, default=0, help="Height adjustment in inches (e.g., +2 for taller, -2 for shorter)")
     p.add_argument("--seed", type=int, default=42, help="Random seed")
     return p.parse_args()
 
@@ -161,12 +162,14 @@ HEIGHT_RANGES = {
     },
 }
 
-def height_inches(gender: str, sport: str = None) -> int:
-    """Generate height based on sport and gender."""
+def height_inches(gender: str, sport: str = None, height_adjust: int = 0) -> int:
+    """Generate height based on sport and gender, with optional adjustment."""
     if sport and sport in HEIGHT_RANGES:
         ranges = HEIGHT_RANGES[sport]
         if gender in ranges:
             lo, hi = ranges[gender]
+            lo += height_adjust
+            hi += height_adjust
             return random.randint(lo, hi)
     # Default fallback
     if gender == "Female":
@@ -175,6 +178,8 @@ def height_inches(gender: str, sport: str = None) -> int:
         lo, hi = 64, 74
     else:
         lo, hi = 62, 72
+    lo += height_adjust
+    hi += height_adjust
     return random.randint(lo, hi)
 
 def weight_pounds(ht_in: int, gender: str) -> int:
@@ -274,7 +279,7 @@ def main():
         bd = rng_date_in_year(by)
         gy = grad_year_from_birth(by)
 
-        ht = height_inches(gender, sport)
+        ht = height_inches(gender, sport, args.height_adjust)
         wt = weight_pounds(ht, gender)
 
         school = args.school if args.school else random.choice(SCHOOLS)
