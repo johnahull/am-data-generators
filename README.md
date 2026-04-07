@@ -54,6 +54,31 @@ Generates performance testing measurements from a roster CSV. Creates realistic 
 **Output fields:**
 firstName, lastName, gender, teamName, date, age, metric, value, units, flyInDistance, notes
 
+### `generate_dashr.py`
+
+Generates Dashr timing gate CSV files from a roster. Output matches the real Dashr export format (54 columns) and is compatible with the AthleteMetrics Device Import parser.
+
+**Usage:**
+```bash
+./generate_dashr.py --roster roster.csv --out dashr_export.csv --dates 2025-03-15 2025-06-20
+```
+
+**Options:**
+- `--roster` (required): Path to roster CSV file
+- `--out` (required): Output Dashr CSV file path
+- `--dates` (required): Session dates in YYYY-MM-DD format (space-separated)
+- `--drills`: Drill types to generate (default: dash flying 505). Choices: dash, flying, 505, proagility
+- `--trials`: Attempts per athlete per drill (default: 3)
+- `--dash-distance`: Final distance for dash drills in yards (default: 30). Choices: 10, 20, 30, 40
+- `--performance-level`: Performance level (default: varsity). Choices: elite, varsity, jv, recreational
+- `--seed`: Random seed (default: 42)
+
+**Drill types:**
+- `dash`: Timed sprint with split times (5yd, 10yd, 20yd splits for a 30yd dash)
+- `flying`: 10-yard fly time with 20-yard approach
+- `505`: 505 agility test with left and right directions
+- `proagility`: Pro Agility / 5-10-5 test with left and right directions
+
 ## Example Workflow
 
 ```bash
@@ -62,6 +87,16 @@ firstName, lastName, gender, teamName, date, age, metric, value, units, flyInDis
 
 # Generate measurements for two test dates
 ./generate_measurements.py --roster data/roster.csv --out data/measurements.csv --trials 3 --dates 2025-02-01 2025-05-01
+```
+
+### Device Import Testing
+
+```bash
+# Generate a Dashr CSV for testing the Device Import feature
+./generate_dashr.py --roster data/roster.csv --out data/dashr_export.csv \
+  --dates 2025-03-15 2025-06-20 --drills dash flying 505 --trials 3
+
+# Use the output in AthleteMetrics: Data Entry > Device Import tab > Upload Device File
 ```
 
 ## Requirements
