@@ -169,8 +169,8 @@ def get_position_adjustment(sport, position, metric):
 
 def parse_args():
     p = argparse.ArgumentParser(description="Generate sport-specific testing measurements from a roster.")
-    p.add_argument("--roster", required=True, help="Path to roster CSV")
-    p.add_argument("--out", required=True, help="Output measurements CSV")
+    p.add_argument("--roster", help="Path to roster CSV (required unless --list-metrics)")
+    p.add_argument("--out", help="Output measurements CSV (required unless --list-metrics)")
     p.add_argument("--trials", type=int, default=3, help="Trials per metric per date (default 3)")
     p.add_argument("--dates", nargs="*", help="Test dates YYYY-MM-DD. If omitted, generates random dates.")
     p.add_argument("--num_random_dates", type=int, default=1, help="If no --dates, how many random dates to make")
@@ -178,6 +178,8 @@ def parse_args():
     p.add_argument("--random_date_end", default="2025-12-31", help="End of random date window YYYY-MM-DD")
     p.add_argument("--performance_level", choices=["elite", "varsity", "jv", "recreational"], help="Predefined performance level")
     p.add_argument("--performance_multiplier", type=float, help="Custom performance multiplier (overrides --performance_level)")
+    p.add_argument("--metrics", nargs="*", help="Only generate these metrics (e.g. HEIGHT_IN WEIGHT_LBS). If omitted, all metrics for the sport are generated.")
+    p.add_argument("--list-metrics", metavar="SPORT", help="List available metrics for a sport and exit")
     p.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
     return p.parse_args()
 
@@ -400,6 +402,21 @@ def gen_value(spec, base_offset, day_index, jitter_sd, age=None, gender=None, me
 
 def main():
     args = parse_args()
+
+    if args.list_metrics:
+        sport = args.list_metrics
+        if sport not in SPORT_METRICS:
+            print(f"Unknown sport '{sport}'. Available: {', '.join(SUPPORTED_SPORTS)}", file=sys.stderr)
+            sys.exit(1)
+        for name, spec in SPORT_METRICS[sport].items():
+            static_tag = " (static)" if spec.get("static") else ""
+            print(f"  {name:20s} [{spec['units'] or 'ratio':>5s}]{static_tag}")
+        sys.exit(0)
+
+    if not args.roster or not args.out:
+        print("Error: --roster and --out are required.", file=sys.stderr)
+        sys.exit(2)
+
     random.seed(args.seed)
 
     roster = read_roster(args.roster)
@@ -442,6 +459,11 @@ def main():
                 continue
 
             metrics = get_sport_metrics(sport)
+            if args.metrics:
+                unknown = set(args.metrics) - set(metrics.keys())
+                if unknown:
+                    print(f"Warning: Unknown metrics for {sport}: {unknown}. Skipping them.", file=sys.stderr)
+                metrics = {k: v for k, v in metrics.items() if k in args.metrics}
 
             for di, d in enumerate(sorted(dates)):
                 age = age_on(birthDate, d)
