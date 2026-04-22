@@ -5,6 +5,7 @@ Produces CSV files that match the real Dashr export format (54 columns),
 compatible with the AthleteMetrics Device Import parser.
 """
 import argparse, csv, random, sys
+from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -32,7 +33,7 @@ DRILL_SPECS = {
         "type": "Dash",
         "distances": {10: 1.65, 20: 2.95, 30: 4.20, 40: 4.80},
         "sd": 0.08,
-        "split_distances": {10: [5], 20: [5, 10], 30: [5, 10, 20], 40: [5, 10, 20, 30]},
+        "split_distances": {10: [5], 20: [5, 10], 30: [5, 10, 20], 40: [10, 20, 30]},
     },
     "flying": {
         "type": "Flying",
@@ -72,6 +73,22 @@ PERFORMANCE_LEVELS = {
     "jv": 1.10,           # 10% slower
     "recreational": 1.25, # 25% slower
 }
+
+# ---- Speed profile: acceleration-curve exponent in split_time = (d/D)^e * T ----
+# Lower e = more concave curve = slower start, higher relative top speed.
+PROFILE_EXPONENTS = {
+    "accelerator": 0.92,   # Hits near-max velocity quickly; curve is near-linear
+    "balanced": 0.85,      # Gradual speed-up (reference curve)
+    "top_speed": 0.78,     # Slow off the line, explodes late
+}
+# Weights used when an athlete has no explicit speed_profile column.
+PROFILE_WEIGHTS = {
+    "accelerator": 0.30,
+    "balanced": 0.50,
+    "top_speed": 0.20,
+}
+PROFILE_JITTER_SD = 0.02   # Per-athlete gaussian noise on exponent, frozen across sessions
+PROFILE_MIN, PROFILE_MAX = 0.60, 0.98  # Physical clamp (>=1.0 would mean decelerating)
 
 
 def parse_args():
@@ -150,16 +167,34 @@ def fmt_speed(distance_yd, time_s):
     return f"{speed_mph:.2f} (MPH)"
 
 
-def gen_split_times(final_time, final_dist, split_distances):
+def resolve_profile(athlete):
+    """Pick a (profile_name, exponent) for an athlete.
+
+    If the roster has a `speed_profile` column with a recognized value, use it;
+    otherwise draw from PROFILE_WEIGHTS. Exponent is jittered per-athlete so
+    two "accelerators" are not identical, but frozen across their sessions.
+    """
+    raw = (athlete.get("speed_profile") or "").strip().lower()
+    profile = raw if raw in PROFILE_EXPONENTS else random.choices(
+        list(PROFILE_WEIGHTS.keys()),
+        weights=list(PROFILE_WEIGHTS.values()),
+        k=1,
+    )[0]
+    exponent = PROFILE_EXPONENTS[profile] + random.gauss(0, PROFILE_JITTER_SD)
+    exponent = max(PROFILE_MIN, min(PROFILE_MAX, exponent))
+    return profile, exponent
+
+
+def gen_split_times(final_time, final_dist, split_distances, exponent=0.85):
     """Generate realistic cumulative split times using acceleration curve.
 
-    Uses power law: time at distance d = (d/D)^0.85 * T
-    This models the acceleration phase where early splits are slower per yard.
+    Uses power law: time at distance d = (d/D)^exponent * T.
+    Lower exponent = more concave curve = slower start, higher relative top speed.
     """
     splits = []
     for sd in split_distances:
         ratio = sd / final_dist
-        split_time = (ratio ** 0.85) * final_time
+        split_time = (ratio ** exponent) * final_time
         # Add tiny jitter to each split
         split_time += random.gauss(0, 0.01)
         split_time = max(0.1, split_time)
@@ -172,10 +207,10 @@ def empty_row():
     return {h: "" for h in DASHR_HEADER}
 
 
-def gen_dash_row(athlete, date_str, final_dist, split_dists, base_time, sd, mult):
+def gen_dash_row(athlete, date_str, final_dist, split_dists, base_time, sd, mult, exponent=0.85):
     """Generate a single Dash row with splits."""
     final_time = max(0.5, random.gauss(base_time * mult, sd * mult))
-    splits = gen_split_times(final_time, final_dist, split_dists)
+    splits = gen_split_times(final_time, final_dist, split_dists, exponent)
 
     row = empty_row()
     row["Date"] = date_str
@@ -248,6 +283,12 @@ def main():
         print("No roster rows found.", file=sys.stderr)
         sys.exit(1)
 
+    # Assign a persistent speed profile to each athlete before any session runs.
+    for athlete in roster:
+        profile, exponent = resolve_profile(athlete)
+        athlete["_profile"] = profile
+        athlete["_accel_exponent"] = exponent
+
     dates = [datetime.strptime(d, "%Y-%m-%d").date() for d in args.dates]
     perf_level = args.performance_level
 
@@ -283,7 +324,11 @@ def main():
                         dist = args.dash_distance
                         base_time = spec["distances"][dist]
                         split_dists = spec["split_distances"][dist]
-                        row = gen_dash_row(athlete, timestamp, dist, split_dists, base_time, spec["sd"], mult)
+                        row = gen_dash_row(
+                            athlete, timestamp, dist, split_dists,
+                            base_time, spec["sd"], mult,
+                            athlete["_accel_exponent"],
+                        )
                         rows.append(row)
 
                     elif drill_name == "flying":
@@ -314,6 +359,10 @@ def main():
     print(f"Sessions: {', '.join(d.isoformat() for d in sorted(dates))}")
     print(f"Athletes: {len(roster)}")
     print(f"Drills: {', '.join(args.drills)}")
+    if "dash" in args.drills:
+        counts = Counter(a["_profile"] for a in roster)
+        profile_str = ", ".join(f"{k}={counts.get(k, 0)}" for k in PROFILE_EXPONENTS)
+        print(f"Speed profiles: {profile_str}")
 
 
 if __name__ == "__main__":
