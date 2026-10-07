@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APP_REF: ${{ inputs.app_ref || 'test/data-generators-import-compat' }}
+  APP_REF: ${{ inputs.app_ref || 'develop' }}
 
 jobs:
   generator-tests:
