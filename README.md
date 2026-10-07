@@ -47,9 +47,11 @@ Generates performance testing measurements from a roster CSV. Creates realistic 
 **Metrics generated:**
 - FLY10_TIME: 10-yard sprint time (seconds)
 - VERTICAL_JUMP: Vertical jump height (inches)
-- AGILITY_505: 505 agility test time (seconds)
+- AGILITY_505_YD, AGILITY_505_YD_L, AGILITY_505_YD_R: 505 agility test time, yard protocol (seconds). AthleteMetrics split the 5-0-5 by protocol, so the old `AGILITY_505` code no longer imports; this generator uses yards only
+- DASH_10YD: 10-yard dash time (seconds). Together with the L/R 505 legs on the same date, the app derives `AGILITY_COD_DEFICIT_YD` (min(L, R) − DASH_10YD)
 - RSI: Reactive Strength Index
 - T_TEST: T-test agility time (seconds)
+- MQ_* movement quality scores: 8 patterns (MQ_LIN_ACCEL, MQ_MAX_VELO, MQ_DECEL, MQ_SHUFFLE, MQ_LATRUN, MQ_HIPTURN, MQ_BACKPEDAL, MQ_JUMP) and 4 transitions (MQ_TRANS_DECEL_CUT, MQ_TRANS_GAS_BRAKE, MQ_TRANS_BACKPEDAL_TURN, MQ_TRANS_LAT_LINEAR). Integer 0–3, unit `score`, one trial per date (ignores `--trials`). All 12 are emitted per date so the app derives `MQI_TOTAL` and `MQ_TRANSITION_TOTAL`. Importing MQ scores requires a coach, org admin or site admin account
 
 **Output fields:**
 firstName, lastName, gender, teamName, date, age, metric, value, units, flyInDistance, notes
@@ -76,7 +78,7 @@ Generates Dashr timing gate CSV files from a roster. Output matches the real Das
 **Drill types:**
 - `dash`: Timed sprint with split times (5yd, 10yd, 20yd splits for a 30yd dash)
 - `flying`: 10-yard fly time with 20-yard approach
-- `505`: 505 agility test with left and right directions
+- `505`: 505 agility test with left and right directions (yard protocol; imports as `AGILITY_505_YD_L/_R`)
 - `proagility`: Pro Agility / 5-10-5 test with left and right directions
 
 ## Example Workflow
