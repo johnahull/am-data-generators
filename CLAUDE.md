@@ -40,7 +40,7 @@ The typical workflow is sequential:
 
 ## Key Configuration
 
-### Sport-Specific Metrics (`generate_measurements.py:8-31`)
+### Sport-Specific Metrics (`generate_measurements.py:6-52`)
 
 **Soccer** (22 metrics):
 - FLY10_TIME, VERTICAL_JUMP, AGILITY_505_YD, AGILITY_505_YD_L, AGILITY_505_YD_R, DASH_10YD, RSI, T_TEST, HEIGHT, WEIGHT
@@ -68,17 +68,17 @@ Each metric has baseline stats (center, standard deviation), acceptable ranges, 
 
 Positions are assigned using weighted random selection to reflect typical team composition.
 
-### Age and Gender Adjustments (`generate_measurements.py:35-65`)
+### Age and Gender Adjustments (`generate_measurements.py:56-88`)
 Performance multipliers based on demographic factors to ensure realistic data distribution.
 
-### Anthropometric Growth Curves (`generate_measurements.py:67-78`)
+### Anthropometric Growth Curves (`generate_measurements.py:90-101`)
 Realistic CDC-based growth curves for HEIGHT and WEIGHT by age and gender:
 - Replaces generic performance multipliers for static metrics
 - Age 13 female: 96% adult height, 81% adult weight
 - Age 13 male: 89% adult height, 68% adult weight
 - WINGSPAN and STANDING_REACH use HEIGHT growth curves
 
-### Position-Based Adjustments (`generate_measurements.py:80-97`)
+### Position-Based Adjustments (`generate_measurements.py:103-120`)
 Height and weight adjustments based on athlete position:
 
 **Soccer:**
