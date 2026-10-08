@@ -44,8 +44,9 @@ DRILL_SPECS = {
     },
     "505": {
         "type": "505 Agility Test",
-        "center": 2.50,
-        "sd": 0.12,
+        # Yard protocol (Units=Imperial -> AGILITY_505_YD_L/_R). Yard times run ~8.6% faster than metric (2.50 s).
+        "center": 2.29,
+        "sd": 0.11,
         "directions": ["L", "R"],
     },
     "proagility": {

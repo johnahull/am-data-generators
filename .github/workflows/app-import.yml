@@ -1,0 +1,92 @@
+name: App import check
+
+# Runs the generators' own tests, then the AthleteMetrics integration test that imports
+# generated CSVs (tests/integration/data-generators-import.test.ts) against a database built
+# the way production is (db:push + manual migrations).
+#
+# The app side is checked out at `app_ref` (default: develop), so a run also catches the app
+# renaming or retiring metric codes; the weekly schedule covers app changes with no generators PR.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      app_ref:
+        description: AthleteMetrics ref to test against
+        default: develop
+  schedule:
+    - cron: '0 13 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-import-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_REF: ${{ inputs.app_ref || 'develop' }}
+
+jobs:
+  generator-tests:
+    name: Generator tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - run: python3 -m unittest discover -s tests -v
+
+  app-import:
+    name: AthleteMetrics import
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      # `localhost` matters: scripts/apply-manual-migrations.js only disables SSL for such URLs.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+
+    steps:
+      # The app is checked out at the workspace root so its local setup action works unchanged.
+      - name: Checkout AthleteMetrics
+        uses: actions/checkout@v7
+        with:
+          repository: johnahull/AthleteMetrics
+          ref: ${{ env.APP_REF }}
+
+      - name: Checkout generators
+        uses: actions/checkout@v7
+        with:
+          path: generators
+
+      - name: Setup app
+        uses: ./.github/actions/setup
+
+      - name: Build database (db:push + manual migrations)
+        run: |
+          npm run db:push
+          npm run db:migrate:manual
+
+      - name: Import generated data
+        run: npx vitest run --config vitest.integration.config.ts tests/integration/data-generators-import.test.ts
+        env:
+          NODE_ENV: test
+          NODE_OPTIONS: --max-old-space-size=4096
+          SESSION_SECRET: test-secret-key-for-ci
+          GENERATORS_DIR: ${{ github.workspace }}/generators

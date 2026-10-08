@@ -3,13 +3,31 @@ import argparse, csv, random, sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
+# Movement Quality Index (AM-FEAT-015): coach-scored ordinal 0-3 (3 Efficient, 2 Functional,
+# 1 Compensated, 0 Absent), one trial per date. The app derives MQI_TOTAL / MQ_TRANSITION_TOTAL only
+# when all 8 pattern / all 4 transition scores exist on the same date, so every code is emitted.
+MQ_PATTERN_CODES = ["MQ_LIN_ACCEL", "MQ_MAX_VELO", "MQ_DECEL", "MQ_SHUFFLE",
+                    "MQ_LATRUN", "MQ_HIPTURN", "MQ_BACKPEDAL", "MQ_JUMP"]
+MQ_TRANSITION_CODES = ["MQ_TRANS_DECEL_CUT", "MQ_TRANS_GAS_BRAKE",
+                       "MQ_TRANS_BACKPEDAL_TURN", "MQ_TRANS_LAT_LINEAR"]
+MQ_METRICS = {
+    code: {"units": "score", "better": "higher", "center": 2.0, "sd": 0.6, "drift_per_day": +0.002,
+           "min": 0, "max": 3, "flyInDistance": "", "ordinal": True}
+    for code in MQ_PATTERN_CODES + MQ_TRANSITION_CODES
+}
+
 # ---- Config: sport-specific metric specs ----
 # Center/SD are for adult male baseline; min/max expanded to accommodate all ages/genders
 SPORT_METRICS = {
     "Soccer": {
         "FLY10_TIME": {"units": "s", "better": "lower", "center": 1.22, "sd": 0.06, "drift_per_day": -0.0006, "min": 1.00, "max": 1.70, "flyInDistance": 20},
         "VERTICAL_JUMP": {"units": "in", "better": "higher", "center": 23.5, "sd": 2.0, "drift_per_day": +0.008, "min": 12.0, "max": 32.0, "flyInDistance": ""},
-        "AGILITY_505": {"units": "s", "better": "lower", "center": 2.55, "sd": 0.07, "drift_per_day": -0.0007, "min": 2.1, "max": 3.5, "flyInDistance": ""},
+        # 5-0-5 is split by protocol (AM-FEAT-016); this generator uses the yard protocol only.
+        "AGILITY_505_YD": {"units": "s", "better": "lower", "center": 2.33, "sd": 0.065, "drift_per_day": -0.0006, "min": 1.9, "max": 3.2, "flyInDistance": ""},
+        "AGILITY_505_YD_L": {"units": "s", "better": "lower", "center": 2.33, "sd": 0.065, "drift_per_day": -0.0006, "min": 1.9, "max": 3.2, "flyInDistance": ""},
+        "AGILITY_505_YD_R": {"units": "s", "better": "lower", "center": 2.33, "sd": 0.065, "drift_per_day": -0.0006, "min": 1.9, "max": 3.2, "flyInDistance": ""},
+        "DASH_10YD": {"units": "s", "better": "lower", "center": 1.7, "sd": 0.08, "drift_per_day": -0.0005, "min": 1.4, "max": 2.2, "flyInDistance": ""},
+        **MQ_METRICS,
         "RSI": {"units": "", "better": "higher", "center": 2.4, "sd": 0.25, "drift_per_day": +0.0009, "min": 1.0, "max": 4.5, "flyInDistance": ""},
         "T_TEST": {"units": "s", "better": "lower", "center": 9.8, "sd": 0.4, "drift_per_day": -0.0010, "min": 7.5, "max": 13.5, "flyInDistance": ""},
         "HEIGHT_IN": {"units": "in", "better": "higher", "center": 69, "sd": 2.5, "drift_per_day": 0.0, "min": 58, "max": 78, "flyInDistance": "", "static": True},
@@ -20,7 +38,10 @@ SPORT_METRICS = {
         "APPROACH_JUMP": {"units": "in", "better": "higher", "center": 28.0, "sd": 3.0, "drift_per_day": +0.008, "min": 16.0, "max": 42.0, "flyInDistance": ""},
         "BLOCK_JUMP": {"units": "in", "better": "higher", "center": 24.0, "sd": 2.5, "drift_per_day": +0.008, "min": 12.0, "max": 36.0, "flyInDistance": ""},
         "T_TEST": {"units": "s", "better": "lower", "center": 9.8, "sd": 0.4, "drift_per_day": -0.0010, "min": 7.5, "max": 13.5, "flyInDistance": ""},
-        "AGILITY_505": {"units": "s", "better": "lower", "center": 2.55, "sd": 0.07, "drift_per_day": -0.0007, "min": 2.1, "max": 3.5, "flyInDistance": ""},
+        "AGILITY_505_YD": {"units": "s", "better": "lower", "center": 2.33, "sd": 0.065, "drift_per_day": -0.0006, "min": 1.9, "max": 3.2, "flyInDistance": ""},
+        "AGILITY_505_YD_L": {"units": "s", "better": "lower", "center": 2.33, "sd": 0.065, "drift_per_day": -0.0006, "min": 1.9, "max": 3.2, "flyInDistance": ""},
+        "AGILITY_505_YD_R": {"units": "s", "better": "lower", "center": 2.33, "sd": 0.065, "drift_per_day": -0.0006, "min": 1.9, "max": 3.2, "flyInDistance": ""},
+        **MQ_METRICS,
         "RSI": {"units": "", "better": "higher", "center": 2.4, "sd": 0.25, "drift_per_day": +0.0009, "min": 1.0, "max": 4.5, "flyInDistance": ""},
         "WINGSPAN": {"units": "in", "better": "higher", "center": 76, "sd": 3.5, "drift_per_day": 0.0, "min": 60, "max": 90, "flyInDistance": "", "static": True},
         "STANDING_REACH": {"units": "in", "better": "higher", "center": 96, "sd": 4.0, "drift_per_day": 0.0, "min": 78, "max": 115, "flyInDistance": "", "static": True},
@@ -52,7 +73,9 @@ AGE_MAX_VALID = 100
 GENDER_ADJUSTMENTS = {
     "FLY10_TIME": {"Male": 1.00, "Female": 1.08},      # Females ~8% slower (times are inverted)
     "VERTICAL_JUMP": {"Male": 1.00, "Female": 0.75},   # Females ~25% lower jump
-    "AGILITY_505": {"Male": 1.00, "Female": 1.05},     # Females ~5% slower
+    "AGILITY_505_YD": {"Male": 1.00, "Female": 1.05},   # Females ~5% slower
+    "AGILITY_505_YD_L": {"Male": 1.00, "Female": 1.05}, # Females ~5% slower
+    "AGILITY_505_YD_R": {"Male": 1.00, "Female": 1.05}, # Females ~5% slower
     "RSI": {"Male": 1.00, "Female": 0.85},             # Females ~15% lower RSI
     "T_TEST": {"Male": 1.00, "Female": 1.08},          # Females ~8% slower
     "HEIGHT_IN": {"Male": 1.00, "Female": 0.93},        # Females ~7% shorter
@@ -279,6 +302,10 @@ def athlete_baseline_offsets(roster_rows):
         for m, spec in metrics.items():
             # Small per-athlete bias
             per_metric[m] = random.gauss(0.0, spec["sd"] * 0.5)
+        # Left/right 5-0-5 legs share the athlete's baseline, differing by a small per-athlete asymmetry
+        if "AGILITY_505_YD_L" in per_metric and "AGILITY_505_YD_R" in per_metric:
+            asym_sd = metrics["AGILITY_505_YD_R"]["sd"] * 0.2
+            per_metric["AGILITY_505_YD_R"] = per_metric["AGILITY_505_YD_L"] + random.gauss(0.0, asym_sd)
         offsets[key] = per_metric
     return offsets
 
@@ -400,6 +427,11 @@ def gen_value(spec, base_offset, day_index, jitter_sd, age=None, gender=None, me
     v = random.gauss(center + base_offset + trend, jitter_sd)
     return clamp(v, spec["min"], spec["max"])
 
+def gen_ordinal(spec, base_offset, day_index, jitter_sd, performance_multiplier=1.0):
+    """Ordinal (0-3) coach score: latent quality + performance level + slow improvement, rounded and clamped."""
+    latent = spec["center"] + (performance_multiplier - 1.0) * 4.0 + base_offset + spec["drift_per_day"] * day_index
+    return int(clamp(round(random.gauss(latent, jitter_sd)), spec["min"], spec["max"]))
+
 def main():
     args = parse_args()
 
@@ -409,7 +441,7 @@ def main():
             print(f"Unknown sport '{sport}'. Available: {', '.join(SUPPORTED_SPORTS)}", file=sys.stderr)
             sys.exit(1)
         for name, spec in SPORT_METRICS[sport].items():
-            static_tag = " (static)" if spec.get("static") else ""
+            static_tag = " (static)" if spec.get("static") else " (ordinal 0-3)" if spec.get("ordinal") else ""
             print(f"  {name:20s} [{spec['units'] or 'ratio':>5s}]{static_tag}")
         sys.exit(0)
 
@@ -472,12 +504,16 @@ def main():
                 sorted_metrics = sorted(metrics.items(), key=lambda x: (not x[1].get("static", False), x[0]))
                 for metric, spec in sorted_metrics:
                     is_static = spec.get("static", False)
-                    # Static metrics (HEIGHT, WEIGHT, etc.) only need 1 trial
-                    num_trials = 1 if is_static else args.trials
+                    is_ordinal = spec.get("ordinal", False)
+                    # Static metrics (HEIGHT, WEIGHT, etc.) and ordinal MQ scores only need 1 trial
+                    num_trials = 1 if (is_static or is_ordinal) else args.trials
                     for trial in range(num_trials):
                         if is_static:
                             # Use pre-computed static value (consistent across all dates)
                             val = static_vals[key][metric]
+                        elif is_ordinal:
+                            val = gen_ordinal(spec, per_metric_offset[metric], di, spec["sd"] * 0.5,
+                                              performance_multiplier)
                         else:
                             # Generate dynamic value with jitter
                             jitter_sd = spec["sd"] * 0.5
